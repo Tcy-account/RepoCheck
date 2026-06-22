@@ -1,0 +1,3 @@
+-- Flyway Migration V4: reserved for supplemental indexes and dev seed data.
+-- No seed data is inserted here because V1 does not define a password
+-- hashing strategy yet. Add a new migration when real seed data is needed.

@@ -1,0 +1,79 @@
+version: "3.8"
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: repocheck-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root123
+      MYSQL_DATABASE: repocheck
+      MYSQL_USER: repocheck
+      MYSQL_PASSWORD: repocheck123
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    command: --default-authentication-plugin=mysql_native_password --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --skip-name-resolve=OFF
+
+  redis:
+    image: redis:7-alpine
+    container_name: repocheck-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+  minio:
+    image: minio/minio:latest
+    container_name: repocheck-minio
+    restart: unless-stopped
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_data:/data
+    command: server /data --console-address ":9001"
+
+  # ========== 以下服务暂不容器化，保留注释供后续使用 ==========
+
+  # ai-service:
+  #   build: ./ai-service
+  #   container_name: repocheck-ai
+  #   restart: unless-stopped
+  #   ports:
+  #     - "8000:8000"
+  #   env_file:
+  #     - ./ai-service/.env
+  #   depends_on:
+  #     - mysql
+  #     - redis
+
+  # backend:
+  #   build: ./backend
+  #   container_name: repocheck-backend
+  #   restart: unless-stopped
+  #   ports:
+  #     - "8080:8080"
+  #   depends_on:
+  #     - mysql
+  #     - redis
+  #     - minio
+
+  # frontend:
+  #   build: ./frontend
+  #   container_name: repocheck-frontend
+  #   restart: unless-stopped
+  #   ports:
+  #     - "3000:80"
+  #   depends_on:
+  #     - backend
+
+volumes:
+  mysql_data:
+  redis_data:
+  minio_data:
